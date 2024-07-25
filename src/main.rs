@@ -1,4 +1,8 @@
-use actix_web::{get, App, HttpResponse, HttpServer, Responder};
+mod models;
+mod services;
+
+use actix_web::{get, web::Data, App, HttpResponse, HttpServer, Responder};
+use services::db::Database;
 
 #[get("/hello")]
 async fn hello() -> impl Responder {
@@ -7,9 +11,11 @@ async fn hello() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let server = HttpServer::new(|| App::new().service(hello))
-        .bind("localhost:5001") // Specify the address and port here
-        .expect("Cannot bind to localhost:5001"); // Handle the error
+    let db = Database::init().await;
+    let db_data = Data::new(db);
 
-    server.run().await
+    HttpServer::new(move || App::new().app_data(db_data.clone()).service(hello))
+        .bind(("localhost", 5001))?
+        .run()
+        .await
 }
