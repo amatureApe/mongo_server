@@ -1,3 +1,4 @@
+use super::{dog_model::Dog, owner_model::Owner};
 use chrono::Utc;
 use mongodb::bson::{oid::ObjectId, DateTime};
 use serde::{Deserialize, Serialize};
@@ -17,6 +18,16 @@ pub struct BookingRequest {
     pub owner: String,
     pub start_time: String,
     pub duration_in_minutes: u8,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FullBooking {
+    pub _id: ObjectId,
+    pub owner: Owner,
+    pub dogs: Vec<Dog>,
+    pub start_time: DateTime,
+    pub duration_in_minutes: u8,
+    pub cancelled: bool,
 }
 
 impl TryFrom<BookingRequest> for Booking {
